@@ -1,0 +1,112 @@
+#!/bin/bash
+
+POSIXLY_CORRECT=yes
+# Handle arguments
+
+# [-h|--help] [FILTR] [PŘÍKAZ] UŽIVATEL LOG [LOG2 [...]
+# check for help
+if [[ "$1" == "-h" || "$1" == "--help" ]]; then
+    echo "Usage: ./xtf [FILTR] [PŘÍKAZ] UŽIVATEL LOG [LOG2 [...]]"
+    echo "FILTR: -a, -b, -c"
+    echo "PŘÍKAZ: list, list-currency, status, profit"
+    echo "UŽIVATEL: jméno uživatele"
+    echo "LOG: název logu"
+    echo "LOG2 - N: název dalších logů"
+    exit 0
+fi
+
+# check for filter
+if [[ "$1" == "-a" || "$1" == "-b" || "$1" == "-c" ]]; then
+    FILTER="$1"
+    shift
+    FILTER_VALUE="$1"
+    shift
+else
+    FILTER=""
+fi
+
+# check for command
+if [[ "$1" == "list" || "$1" == "list-currency" || "$1" == "status" || "$1" == "profit" ]]; then
+    COMMAND="$1"
+    shift
+else
+    # invalid command expecting user then
+    COMMAND=""
+fi
+
+# check for user
+if [[ -z "$1" ]]; then
+    echo "No user specified"
+    exit 1
+fi
+USER="$1"
+shift
+
+# check for log
+if [[ -z "$1" ]]; then
+    echo "No log specified"
+    exit 1
+fi
+LOG[0]="$1"
+shift
+
+# check for log3 - n
+while [[ -n "$1" ]]; do
+    LOG+=("$1")
+    shift
+done
+# Arguments are now handled
+
+# Check if log files exist
+for log in "${LOG[@]}"; do
+    if [[ ! -f "$log" ]]; then
+        echo "File $log does not exist"
+        exit 1
+    fi
+done
+
+# Check if log files are readable
+for log in "${LOG[@]}"; do
+    if [[ ! -r "$log" ]]; then
+        echo "File $log is not readable"
+        exit 1
+    fi
+done
+
+# Check if log files are not directories
+for log in "${LOG[@]}"; do
+    if [[ -d "$log" ]]; then
+        echo "File $log is a directory"
+        exit 1
+    fi
+done
+
+# find all transactions for user in each file
+transactions=()
+for log in "${LOG[@]}"; do
+    # go through each line in the log file and grep for the user
+    while read -r line; do
+        if [[ "$line" == *"$USER"* ]]; then
+            transactions+=("$line")
+        fi
+    done < "$log"
+done
+
+# print every transaction for the user
+# List thingy
+if [[ "$COMMAND" == "list" ]] || [[ "$COMMAND" == "" ]]; then
+    for transaction in "${transactions[@]}"; do
+        echo "$transaction"
+    done
+    exit 0
+fi
+
+
+
+
+
+
+
+
+
+
