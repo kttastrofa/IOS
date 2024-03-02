@@ -28,9 +28,9 @@ rm -rf diff
 run_test() {
     local expected_output=${1}
     local args=("${@:2}")
-    echo -n -e "$test_count. Running ./xtf ${args[@]}"
+    echo -n -e "$test_count. Running ./xtf ${args[*]}"
 
-    local actual_output=$(./xtf "${args[@]}")
+    local actual_output=$(.xtf "${args[@]}")
 
     if [[ "$actual_output" == "$expected_output" ]]; then
         echo -e "${GREEN} [OK] ${NORMAL}"
