@@ -117,6 +117,7 @@ CMD_fun () { #COMMAND function
 #                                                         MAIN                                                         #
 ########################################################################################################################
 
+# skontroluj, ci jesto veci dvesto
 while [ "$#" -gt 0 ]; do #checks for every input - case insensitive
     case "$1" in
         -h | --help)
@@ -159,7 +160,7 @@ while [ "$#" -gt 0 ]; do #checks for every input - case insensitive
     esac
 done
 
-
+# ak jesto, cas prikazom dat priestor
 ERROR_fun  "$NAME","${LOG}" , #checks for your dyslexia
 initial_fun "${LOG}" , #helps my dyslexia
 FLT_fun "$FLA","$FLB","$FLC","$NAME","${LOG}" , #helps your other dysfunctions
