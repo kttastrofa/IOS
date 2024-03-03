@@ -1,157 +1,116 @@
-#!/bin/bash
-
+#!/bin/sh
 POSIXLY_CORRECT=yes
-
-## filtr-prikaz-meno-log
-
-# skontroluj, ci jesto veci dvesto
-# ak jesto, cas prikazom dat priestor
-
-# filtruj info (awk), zoradzuj (sort)
-#######################################
-# -z $1 == "list"
-# -n $1 == "list" || "help" || "status" || "profit" || "status-currency"
-# -n $1 || $2 == "[name]"
-# -n $2 || $3 == "[log]"
-# || solved by shift
-
-# return take from xtf (orgsrc)
-#######################################
-# WARNING: desetine, none else :/
+LC_NUMERIC=en_US.UTF-8 #neistota, ci mozno, asi forum bude navstivene (inak mi to mocne zaokruhluje a kraviny pocita)
 
 
-# [-h|--help] [FILTR] [PŘÍKAZ] UŽIVATEL LOG [LOG2 [...]]
+print_hlp_fun() { #prints breaf instruction
+    echo "
+
+                    Hello!
+
+                    Here's some help:
+                    [-h|--help] [FILTR] [PŘÍKAZ] UŽIVATEL LOG [LOG2 [...]]
+
+                    '-h' or '--help'      : is what you can see right now :)
+
+                    for FILTR you can use:
+                    '-a [DATETIME]'       : returns every log after used [DATETIME], use format \"YYYY-MM-DD HH:MM:SS\"
+                    '-b [DATETIME]'       : returns every log before used [DATETIME], use format \"YYYY-MM-DD HH:MM:SS\"
+                    '-c [CURRENCY]'       : returns every log with used [CURRENCY], for codes of currencies call 'list-currency'
+
+                    for PŘÍKAZ you can use:
+                    'list'                : returns list of every log of yours
+                    'list-currency'       : returns list of every currency in alphabetical order
+                    'status'              : returns list of every -- status of every currency you maintain
+                    'profit'              : returns list of every status of your currencies with the profit you made
+
+                    for UŽIVATEL use your name you had signed with
+                    for LOG use log, which has to be a file of '.log' or '.gz' in CSV format
+
+                    WARNING: last two (UŽIVATEL & LOG) are mandatory for every action
+
+                    Hope it helped :)
+
+         "
+}
 
 
-if [ "$1" = "-h" ] || [ "$1" = "--help" ]; then
-      echo "
-
-                Hello!
-
-                Here's some help:
-                [-h|--help] [FILTR] [PŘÍKAZ] UŽIVATEL LOG [LOG2 [...]]
-
-                '-h' or '--help'      : is what you can see right now :)
-
-                for FILTR you can use:
-                '-a [DATETIME]'       : returns every log after used [DATETIME], use format YYYY-MM-DD HH:MM:SS
-                '-b [DATETIME]'       : returns every log before used [DATETIME]
-                '-c [CURRENCY]'       : returns every log with used [CURRENCY], for codes of currencies call 'list-currency'
-
-                for PŘÍKAZ you can use:
-                'list'                : returns list of every log of yours
-                'list-currency'       : returns list of every currency in alphabetical order
-                'status'              : returns list of every -- status of every currency you maintain
-                'profit'              : returns list of every status of your currencies with the profit you made
-
-                for UŽIVATEL use your name you had signed with
-                for LOG use log, which has to be a file of '.log' or '.gz' in CSV format
-
-                WARNING: last two (UŽIVATEL & LOG) are mandatory for every action
-
-                Hope it helped :)
-
-            "
-      shift 1
-      exit 0
-    fi
-
-    if [ "$1" = "-a" ] || [ "$1" = "-b" ] || [ "$1" = "-c" ]; then
-        FLT="$1"
-        shift 1
-        VALUE="$1"
-        shift 1
-        VALUE+="$1"
-        shift 1
-    fi
-
-    #todo if more FLT, tak bere len 1.
-
-    if [ "$1" = "list" ] || [ "$1" = "list-currency" ] || [ "$1" = "profit" ] || [ "$1" = "status" ]; then
-        CMD="$1"
-        shift 1
+DT_format_fun() { #checks for right DT format
+    if date -d "$1" "+%Y-%m-%d %H:%M:%S" >/dev/null; then
+        return 0
     else
-        CMD="list"
-    fi
-
-    if [ -n "$1" ]; then
-        NAME="$1"
-        shift 1
-    fi
-
-    if [ -f "$1" ]; then #bere jen static way
-        LOG[0]="$1"
-        shift 1
-    fi
-
-    if [ -f "$1" ]; then #bere jen static way
-        while [ -n "$1" ]; do
-            LOG+=("$1")
-            shift 1
-        done
-    fi
-
-
-ERROR_fun ()
-{
-
-    if [ -z "$1" ]; then
-        echo "ERROR: Please call for '--help'."
+        echo "ERROR: Invalid DATETIME format, call for '--help'" >&2
         exit 1
-    elif [ -z "$NAME" ]; then
-        echo "ERROR: No NAME used, please write your name on UŽIVATEL placeholder or call for '--help'."
-        exit 1
-    elif [ -z "${LOG[0]}" ]; then
-        echo "ERROR: No LOG used, please put your log on LOG placeholder or call for '--help'."
-        exit 1
-    fi
-
-    #todo Check if log files exist && .gz openin'
-    for LOG in "${LOG[@]}"; do
-        if [[ ! -f "$LOG" ]]; then
-            echo "File $LOG does not exist"
-            exit 1
-        elif [[ ! -r "$LOG" ]]; then
-            echo "File $LOG is not readable"
-            exit 1
-        elif [[ -d "$LOG" ]]; then
-            echo "File $LOG is a directory"
-            exit 1
-        fi
-    done
-}
-
-
-FLT_fun ()
-{
-    if [ "$FLT" = "-a" ]; then #after time
-        awk ' -F ";" /$NAME/ && sort_time {print} | sort '
-        #todo sort time for "$DATE >= $2 && $TIME >= $3"
-    elif [ "$FLT" = "-b" ]; then
-        awk ' -F ";" /$NAME/ && sort_time {print} | sort '
-    elif [ "$FLT" = "-c" ]; then
-        awk ' -F ";" /$NAME/ && /$VALUE/ {print} | sort '
     fi
 }
 
+initial_fun() { #initial awk sort - recursive usage
+    SORT=$(echo "$LOG" | awk -F ";" -v name="$NAME" "{if (\$1 == name){print}}")
 
-CMD_fun ()
-{
-    if [ "$CMD" = "list" ]; then
-        awk  -F ";" -v name="$NAME" '$1 == name {print} ' "$LOG"
-
-    elif [ "$CDM" = "list-currency" ]; then
-        awk  -F ";" -v name="$NAME" '$1 == name {print $3}' "$LOG" | uniq | sort
-
-    elif [ "$CMD" = "status" ]; then
-        awk -F ";" -v name="$NAME" '$1 == name {print $3" \: "$4}' "$LOG" | sort -t ';' -k3
-
-    elif [ "$CMD" = "profit" ]; then
-        awk -F ";" -v name="$NAME" '$1 == name {print $3" \: "$4*1.2}' "$LOG" | sort -t ';' -k3
-        awk -F ";" -v name="$NAME" '$1 == name {if ($4 > 0) print $3" \: "$4*1.2; else print $3" \: "$4}' "$LOG" | sort -t ';' -k3
-
-        #todo ?? where *
+    if [ -z "$SORT" ]; then
+        exit 0
     fi
+}
+
+ERROR_fun () { #checks basic syntax and returns errors and even more breaf help
+    if [ -z "$1" ]; then #if none command was given
+        echo "ERROR: Please call for '--help'." >&2
+        exit 2
+    elif [ -z "$NAME" ]; then #if none NAME was given
+        echo "ERROR: No NAME used, please write your name on UŽIVATEL placeholder or call for '--help'." >&2
+        exit 3
+    elif [ -z "${LOG}" ]; then #if no LOG was found
+        echo "ERROR: No LOG used, please put your log on LOG placeholder or call for '--help'." >&2
+        exit 4
+    fi
+}
+
+FLT_fun () { #separate function for FILTER based on recursive initial SORT, reusable based on commands
+    if [ -n "$FLA" ]; then #after time
+        SORT=$(echo "$SORT" | awk -F ";" -v after="$FLA" "{if (after < \$2){print}}" | sort)
+    fi
+
+    if [ -n "$FLB" ]; then #before
+        SORT=$(echo "$SORT" | awk -F ";" -v before="$FLB" "{if (before > \$2){print}}" | sort)
+    fi 
+    
+    if [ -n "$FLC" ]; then #currency
+       SORT=$(echo "$SORT" | awk  -F ";" -v currency="$FLC" "{if (currency == \$3){print}}" | sort)
+    fi
+}
+
+status_fun(){ #needed for recursion in status and profit COMMAND
+    SORT=$(echo "$SORT" | awk -F ";" "{code_of_curry = \$3; money_in_the_B = \$4; curry[code_of_curry] += money_in_the_B}
+                               END { for (code_of_curry in curry)
+                                   { printf \"%s : %.4f\n\", code_of_curry, curry[code_of_curry] }}" | sort)
+}
+
+
+CMD_fun () { #COMMAND function
+    case "$CMD" in
+        list | "")
+            echo "$SORT"
+            ;; #for list print everyting with used NAME
+
+        list-currency)
+            echo "$SORT" | awk -F ";" "{print \$3}" | sort | uniq
+            ;; #for l-c print every used currency (based on NAME again)
+
+        status)
+            status_fun "${SORT}"
+            echo "$SORT"
+            ;; #for status print status of every used currency - counts value of currencies, then prints them
+
+        profit)
+            status_fun "${SORT}"
+            echo "$SORT" | awk -F ":" "{if (\$2 > 0){
+            print \$1 \" : \" \$2*1.2
+            } else {
+            print}
+            }" | sort
+            ;; #similar to status, yet multiplies currencies with positive status, then adds, then prints
+
+    esac
 }
 
 
@@ -162,7 +121,51 @@ CMD_fun ()
 ########################################################################################################################
 
 
+while [ "$#" -gt 0 ]; do #checks for every input - case insensitive
+    case "$1" in
+        -h | --help)
+            print_hlp_fun
+            exit 0
+            ;; # help had been printed
+        -a)
+            DT_format_fun "$2"
+            FLA="$2"
+            shift 2
+            ;; # datetime for AFTER had been taken to better place :)
+        -b)
+            DT_format_fun "$2"
+            FLB="$2"
+            shift 2
+            ;; # -||- BEFORE -||-
+        -c)
+            FLC="$2"
+            shift 2
+            ;; # code for currency had been added to our bucket list
+        list | list-currency | status | profit)
+            CMD="$1" #ratajuc so vstupom 1 CMD || zobere len posledny zadany CMD
+            shift 1
+            ;; # now we know what u want to know. the fact u r dyslectic will be proved in few seconds :)
+        *.log | *.gz)
+            case "$1" in
+                *.gz)
+                    LOG="${LOG}$(gzip -d -c "$1")"
+                    ;; # now we know everything about you, thanks for your cooperation
+                *)
+                    LOG="${LOG}$(cat "$1")"
+                    ;; # same, but not for compressed files, just for the standard ones
+            esac
+            shift 1
+            ;;
+        *)
+            NAME="$1"
+            shift 1
+            ;; # uh, sry, now we know everything, thanks... muhahahaa
+    esac
+done
 
-ERROR_fun  "$NAME","${LOG[*]}" ,
-CMD_fun "$CMD","$NAME","${LOG[*]}" ,
-FLT_fun "$VALUE","$NAME","${LOG[*]}" ,
+
+ERROR_fun  "$NAME","${LOG}" , #checks for your dyslexia
+initial_fun "${LOG}" , #helps my dyslexia
+FLT_fun "$FLA","$FLB","$FLC","$NAME","${LOG}" , #helps your other dysfunctions
+CMD_fun "$CMD","$NAME","${LOG}" , #-||-
+exit 0 #deal done
