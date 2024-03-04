@@ -138,11 +138,11 @@ while [ "$#" -gt 0 ]; do #checks for every input - case insensitive
             shift 2
             ;; # -||- BEFORE -||-
         -c)
-            FLC="$2"
+            FLC="$2" #todo 2++ -c moze byt pozadovane viac*krat
             shift 2
             ;; # code for currency had been added to our bucket list
         list | list-currency | status | profit)
-            CMD="$1" #ratajuc so vstupom 1 CMD || zobere len posledny zadany CMD
+            CMD="$1" #only for 1 CMD - takes only the last given one
             shift 1
             ;; # now we know what u want to know. the fact u r dyslectic will be proved in few seconds :)
         *.log | *.gz)
@@ -156,7 +156,7 @@ while [ "$#" -gt 0 ]; do #checks for every input - case insensitive
             esac
             shift 1
             ;;
-        *)
+        *) #todo how to prevent half mistyped CMD if the name can be anything??
             NAME="$1"
             shift 1
             ;; # uh, sry, now we know everything, thanks... muhahahaa
