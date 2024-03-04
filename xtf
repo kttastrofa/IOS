@@ -1,7 +1,6 @@
 #!/bin/sh
 POSIXLY_CORRECT=yes
 LC_NUMERIC=en_US.UTF-8 #todo , ci mozno, asi forum bude navstivene (inak mi to mocne zaokruhluje a kraviny pocita)
-#LC_ALL=C.UTF-8
 
 print_hlp_fun() { #prints breaf instruction
     echo "
@@ -33,7 +32,6 @@ print_hlp_fun() { #prints breaf instruction
 
          "
 }
-
 
 DT_format_fun() { #checks for right DT format
     if date -d "$1" "+%Y-%m-%d %H:%M:%S" >/dev/null; then
@@ -84,7 +82,6 @@ status_fun(){ #needed for recursion in status and profit COMMAND
                                END { for (code_of_curry in curry)
                                    { printf \"%s : %.4f\n\", code_of_curry, curry[code_of_curry] }}" | sort)
 }
-
 
 CMD_fun () { #COMMAND function
     case "$CMD" in
@@ -156,7 +153,9 @@ while [ "$#" -gt 0 ]; do #checks for every input - case insensitive
             esac
             shift 1
             ;;
-        *) #todo how to prevent half mistyped CMD if the name can be anything??
+        *)
+#todo how to prevent half mistyped CMD if the name can be anything?? --ulozit prvotne prikazy do premennej,
+#log nacitat do premennej, awkovat log na mena, skontrolovat input meno aj celym inputom ci neobsahuje casti nazvys
             NAME="$1"
             shift 1
             ;; # uh, sry, now we know everything, thanks... muhahahaa
