@@ -139,8 +139,24 @@ while [ "$#" -gt 0 ]; do #checks for every input - case insensitive
             shift 2
             ;; # code for currency had been added to our bucket list
         list | list-currency | status | profit)
-            CMD="$1" #only for 1 CMD - takes only the last given one
-            shift 1
+            if [ -n "$CMD" ]; then
+                #todo if - for how many words the command is (long live shakespears and his shaken word order)
+                shift 1
+            else
+                CMD="$1" #only for 1 CMD - takes only the last given one
+                shift 1
+            fi
+
+            #case "$CMD" in
+             #   -n)
+              #      echo "ERROR: You can use only one COMMAND at once, check '--help'."
+               #     exit 10
+                #    ;;
+                #-z)
+                 #   CMD="$1" #only for 1 CMD - takes only the last given one
+                  #  shift 1
+                   # ;;
+            #esac
             ;; # now we know what u want to know. the fact u r dyslectic will be proved in few seconds :)
         *.log | *.gz)
             case "$1" in
