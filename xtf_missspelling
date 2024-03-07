@@ -1,6 +1,6 @@
 #!/bin/sh
 POSIXLY_CORRECT=yes
-LC_NUMERIC= #todo , forum + 4 desatinne
+LC_NUMERIC=
 
 print_hlp_fun() { #prints breaf instruction
     echo "
@@ -74,8 +74,8 @@ FLT_fun () { #separate function for FILTER based on recursive initial $ORT, reus
 
     if [ -n "$FLB" ]; then #before
         SORT=$(echo "$SORT" | awk -F ";" -v before="$FLB" "{if (before > \$2) {print}}" | sort)
-    fi 
-    
+    fi
+
     if [ -n "$FLC" ]; then #currency
         SORT=$(echo "$SORT" | awk -F ";" -v currency="$FLC" "BEGIN {split(currency, currencies, \" \")}{
                                 for (i in currencies){
@@ -119,6 +119,38 @@ CMD_fun () { #COMMAND function
 #                                                         MAIN                                                         #
 ########################################################################################################################
 
+while [ "$#" -gt 0 ]; do
+    case "$1" in
+        *.log | *.gz)
+            LOG_counter=$((LOG_counter+1))
+            if [ "$LOG_counter" -eq 1 ]; then
+                case "$1" in
+                    *.gz)
+                        LOG="${LOG}$(gzip -d -c "$1")"
+                        ;; # now we know everything about you, thanks for your cooperation
+                    *)
+                        LOG="${LOG}$(cat "$1")"
+                        ;; # same, but not for compressed files, just for the standard ones
+                esac
+            else
+                case "$1" in
+                    *.gz)
+                        LOG="${LOG} \n$(gzip -d -c "$1")"
+                        ;; # now we know everything about you, thanks for your cooperation
+                    *)
+                        LOG="${LOG} \n$(cat "$1")"
+                        ;; # same, but not for compressed files, just for the standard ones
+                esac
+            fi
+            shift 1
+            ;;
+        *)
+            INPUT="$INPUT $1"
+            shift 1
+    esac
+done
+
+
 # skontroluj, ci jesto veci dvesto
 while [ "$#" -gt 0 ]; do #checks for every input - case insensitive
     case "$1" in
@@ -155,34 +187,10 @@ while [ "$#" -gt 0 ]; do #checks for every input - case insensitive
                 exit 6
             fi
             ;; # now we know what u want to know. the fact u r dyslectic will be proved in few seconds :)
-        *.log | *.gz)
-            LOG_counter=$((LOG_counter+1))
-            if [ "$LOG_counter" -eq 1 ]; then
-                case "$1" in
-                    *.gz)
-                        LOG="${LOG}$(gzip -d -c "$1")"
-                        ;; # now we know everything about you, thanks for your cooperation
-                    *)
-                        LOG="${LOG}$(cat "$1")"
-                        ;; # same, but not for compressed files, just for the standard ones
-                esac
-            else
-                case "$1" in
-                    *.gz)
-                        LOG="${LOG} \n$(gzip -d -c "$1")"
-                        ;; # now we know everything about you, thanks for your cooperation
-                    *)
-                        LOG="${LOG} \n$(cat "$1")"
-                        ;; # same, but not for compressed files, just for the standard ones
-                esac
-            fi
-
-            shift 1
-            ;;
         *)
             NAME="$1"
             shift 1
-            ;; # todo misspelling check
+            ;; # uh, sry, now we know everything, thanks... muhahahaa
     esac
 done
 
