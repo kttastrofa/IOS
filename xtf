@@ -48,7 +48,6 @@ DT_format_fun() { #checks for right DT format
 }
 
 serror_fun(){
-
     if [ -z "$SORT" ]; then
         exit 0
     fi
@@ -76,11 +75,9 @@ FLT_fun () { #separate function for FILTER based on recursive initial $ORT, reus
     if [ -n "$FLA" ]; then #after time
         SORT=$(echo "$SORT" | awk -F ";" -v after="$FLA" "{if (after < \$2) {print}}" | sort)
     fi
-
     if [ -n "$FLB" ]; then #before
         SORT=$(echo "$SORT" | awk -F ";" -v before="$FLB" "{if (before > \$2) {print}}" | sort)
-    fi 
-    
+    fi
     if [ -n "$FLC" ]; then #currency
         SORT=$(echo "$SORT" | awk -F ";" -v currency="$FLC" "BEGIN {split(currency, currencies, \" \")}{
                                 for (i in currencies){
@@ -101,16 +98,13 @@ CMD_fun () { #COMMAND function
         list | "")
             echo "$SORT"
             ;; #for list prints everything with used NAME
-
         list-currency)
             echo "$SORT" | awk -F ";" "{print \$3}" | sort | uniq
             ;; #for l-c print every used currency (based on NAME again)
-
         status)
             status_fun "${SORT}"
             echo "$SORT"
             ;; #for status print status of every used currency - counts value of currencies, then prints them
-
         profit)
             status_fun "${SORT}"
             echo "$SORT" | awk -F ":" -v xtf_profit="${XTF_PROFIT:-20}" "{
@@ -124,7 +118,7 @@ CMD_fun () { #COMMAND function
 #                                                         MAIN                                                         #
 ########################################################################################################################
 
-# skontroluj, ci jesto veci dvesto
+# skontroluj, ci jesto veci dvesto | checks what commands were used
 while [ "$#" -gt 0 ]; do #checks for every input - case insensitive
     case "$1" in
         -h | --help)
@@ -186,7 +180,7 @@ while [ "$#" -gt 0 ]; do #checks for every input - case insensitive
             ;;
         *)
             NAME_counter=$((NAME_counter+1))
-            if [ "$NAME_counter" -eq 1 ]; then
+            if [ "$NAME_counter" -eq 1 ]; then #checks for misspelled commands or name overusage
                 NAME="$1"
                 shift 1
             else
@@ -199,7 +193,7 @@ while [ "$#" -gt 0 ]; do #checks for every input - case insensitive
 done
 ERROR_fun  "$NAME","${LOG}"
 
-# ak jesto, cas prikazom dat priestor
+# ak jesto, cas prikazom dat priestor | if everything's OK - functions initialization begins
 initial_fun "${LOG}"
 FLT_fun "$FLA","$FLB","$FLC","$NAME","${LOG}"
 CMD_fun "$CMD","$NAME","${LOG}"
