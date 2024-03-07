@@ -43,7 +43,6 @@ DT_format_fun() { #checks for right DT format
 }
 
 serror_fun(){
-
     if [ -z "$SORT" ]; then
         exit 0
     fi
@@ -145,11 +144,98 @@ while [ "$#" -gt 0 ]; do
             shift 1
             ;;
         *)
-            INPUT="$INPUT $1"
+            IN_counter=$((FLC_counter+1))
+            if [ "$IN_counter" -eq 1 ]; then
+                INPUT="$1"
+            else
+                INPUT="$INPUT $1"
+            fi
             shift 1
     esac
 done
 
+FLA=$(echo "$INPUT" | awk -F " " "{
+    for (i = 1; i <= NF; i++)
+        if (\$i == \"-a\")
+        {
+            printf \$(i+1) \" \" \$(i+2)
+        }
+    }")
+FLB=$(echo "$INPUT" | awk -F " " "{
+    for (i = 1; i <= NF; i++)
+        if (\$i == \"-b\")
+        {
+            printf \$(i+1) \" \" \$(i+2)
+        }
+    }")
+FLC=$(echo "$INPUT" | awk -F " " "{
+    for (i = 1; i <= NF; i++)
+        if (\$i == \"-c\")
+        {
+            printf \$(i+1) \" \" \$(i+2)
+        }
+    }")
+CMD=$(echo "$INPUT" | awk -F " " "{
+    for (i = 1; i <= NF; i++)
+        if (\$i == \"-b\")
+        {
+            printf \$(i+1) \" \" \$(i+2)
+        }
+    }")
+NAME=$(echo "$INPUT" | awk -F " " "{
+    for (i = 1; i <= NF; i++)
+        if (\$i == \"-b\")
+        {
+            printf \$(i+1) \" \" \$(i+2)
+        }
+    }")
+
+echo "$INPUT" | while read -r commands; do
+    case "$commands" in
+            -h | --help)
+                print_hlp_fun
+                exit 0
+                ;; # help had been printed
+            -a)
+                DT_format_fun "$2"
+                FLA="$2"
+                shift 2
+                ;; # datetime for AFTER had been taken to better place :)
+            -b)
+                DT_format_fun "$2"
+                FLB="$2"
+                shift 2
+                ;; # -||- BEFORE -||-
+            -c)
+                FLC_counter=$((FLC_counter+1))
+                if [ "$FLC_counter" -eq 1 ]; then
+                    FLC="$2"
+                else
+                    FLC="${FLC} $2"
+                fi
+                shift 2
+                ;; # code for currency had been added to our bucket list
+            list | list-currency | status | profit)
+                CMD_counter=$((CMD_counter+1))
+                if [ "$CMD_counter" -eq 1 ]; then
+                    CMD="$1" #only for 1 CMD - takes only the last given one
+                    shift 1
+                else
+                    echo #"ERROR: You can use only one COMMAND at once, check '--help'."
+                    exit 6
+                fi
+                ;; # now we know what u want to know. the fact u r dyslectic will be proved in few seconds :)
+            *)
+                NAME="$1"
+                shift 1
+                ;; # uh, sry, now we know everything, thanks... muhahahaa
+        esac
+done
+
+
+#todo   sort        INPUT   into FLT, CMD, NAME
+#todo   check       if -n INPUT else than FLT-CMD-NAME then ERROR
+#todo   check       if NAME == LOG awk $1
 
 # skontroluj, ci jesto veci dvesto
 while [ "$#" -gt 0 ]; do #checks for every input - case insensitive

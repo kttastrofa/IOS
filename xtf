@@ -1,6 +1,9 @@
 #!/bin/sh
 POSIXLY_CORRECT=yes
-LC_NUMERIC= #todo , forum + 4 desatinne
+LC_NUMERIC=
+
+#login:     xmeciak00
+#author:    Katarina Meciarova
 
 print_hlp_fun() { #prints breaf instruction
     echo "
@@ -26,7 +29,9 @@ print_hlp_fun() { #prints breaf instruction
                     for UŽIVATEL use your name you had signed with
                     for LOG use log, which has to be a file of '.log' or '.gz' in CSV format
 
-                    WARNING: last two (UŽIVATEL & LOG) are mandatory for every action
+
+                    WARNING   :     last two (UŽIVATEL & LOG) are mandatory for every action
+                    WARNING 2 :     commands like PŘÍKAZ and UŽIVATEL can be used only once at a time
 
                     Hope it helped :)
 
@@ -147,48 +152,55 @@ while [ "$#" -gt 0 ]; do #checks for every input - case insensitive
             ;; # code for currency had been added to our bucket list
         list | list-currency | status | profit)
             CMD_counter=$((CMD_counter+1))
-            if [ "$CMD_counter" -eq 1 ]; then
-                CMD="$1" #only for 1 CMD - takes only the last given one
+            if [ "$CMD_counter" -eq 1 ]; then #quick check if only one command was given
+                CMD="$1"
                 shift 1
-            else
-                echo #"ERROR: You can use only one COMMAND at once, check '--help'."
+            else #if not, error warns the user
+                echo "ERROR: You can use only one COMMAND at once, check '--help'."
                 exit 6
             fi
-            ;; # now we know what u want to know. the fact u r dyslectic will be proved in few seconds :)
+            ;;
         *.log | *.gz)
             LOG_counter=$((LOG_counter+1))
-            if [ "$LOG_counter" -eq 1 ]; then
+            if [ "$LOG_counter" -eq 1 ]; then #version for empty log variable
                 case "$1" in
                     *.gz)
                         LOG="${LOG}$(gzip -d -c "$1")"
-                        ;; # now we know everything about you, thanks for your cooperation
+                        ;; # uncompressing gzip and saving into log variable
                     *)
                         LOG="${LOG}$(cat "$1")"
-                        ;; # same, but not for compressed files, just for the standard ones
+                        ;; # saving .log into log variable
                 esac
-            else
+            else #if variable is already filled with some information
                 case "$1" in
                     *.gz)
                         LOG="${LOG} \n$(gzip -d -c "$1")"
-                        ;; # now we know everything about you, thanks for your cooperation
+                        ;;
                     *)
                         LOG="${LOG} \n$(cat "$1")"
-                        ;; # same, but not for compressed files, just for the standard ones
+                        ;;
                 esac
             fi
 
             shift 1
             ;;
         *)
-            NAME="$1"
-            shift 1
-            ;; # todo misspelling check
+            NAME_counter=$((NAME_counter+1))
+            if [ "$NAME_counter" -eq 1 ]; then
+                NAME="$1"
+                shift 1
+            else
+                echo "ERROR: You can use only one name at once. Maybe you just misspelled something, may want to check '--help'."
+                exit 7
+            fi
+
+            ;;
     esac
 done
+ERROR_fun  "$NAME","${LOG}"
 
 # ak jesto, cas prikazom dat priestor
-ERROR_fun  "$NAME","${LOG}" , #checks for your dyslexia
-initial_fun "${LOG}" , #helps my dyslexia
-FLT_fun "$FLA","$FLB","$FLC","$NAME","${LOG}" , #helps your other dysfunctions
-CMD_fun "$CMD","$NAME","${LOG}" , #-||-
-exit 0 #deal done
+initial_fun "${LOG}"
+FLT_fun "$FLA","$FLB","$FLC","$NAME","${LOG}"
+CMD_fun "$CMD","$NAME","${LOG}"
+exit 0
