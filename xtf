@@ -187,10 +187,10 @@ while [ "$#" -gt 0 ]; do #checks for every input - case insensitive
                 echo "ERROR: You can use only one name at once. Maybe you just misspelled something, may want to check '--help'."
                 exit 7
             fi
-
             ;;
     esac
 done
+
 ERROR_fun  "$NAME","${LOG}"
 
 # ak jesto, cas prikazom dat priestor | if everything's OK - functions initialization begins
