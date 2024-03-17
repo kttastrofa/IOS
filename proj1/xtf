@@ -68,6 +68,40 @@ ERROR_fun () { #checks basic syntax and returns errors and even more breaf help
     elif [ -z "${LOG}" ]; then #if no LOG was found
         echo "ERROR: No LOG used, please put your log on LOG placeholder or call for '--help'." >&2
         exit 4
+    else
+        NAME_LOG=$(echo "$LOG" | awk -F ";" "{print $1}")
+        DATE_LOG=$(echo "$LOG" | awk -F ";" "{print $2}")
+        CURR_LOG=$(echo "$LOG" | awk -F ";" "{print $3}")
+        VALU_LOG=$(echo "$LOG" | awk -F ";" "{print $4}")
+
+        #NAME
+        #echo "$NAME_LOG" | grep "^[^[:space:];]+$"
+        #if [ $? -eq 1 ]; then
+        #    echo "ERROR: Wrong or damaged LOG used, please check your LOG." >&2
+        #    exit 5
+        #fi
+        #DATE
+        #if [ $? -eq 1 ]; then
+            #echo "$DATE_LOG" | while IFS= read -r line; do # Loop through each line of DATE_LOG
+            #    DT_format_fun "$line" # Call the function for each line
+            #done
+        #fi
+        #CURR
+        #echo "$CURR_LOG" | grep -P "^[A-Z]{3}$" #while IFS= read -r line; do
+        #    if [ "$?" -eq 1 ]; then #echo "$line" | grep -Eq '^[A-Z]{3}$'; then # Check if the line contains only 3 capitalized characters
+        #        #: # If the condition is met, do nothing
+            #else
+        #        echo "ERROR: LOG contains wrong format of currency." >&2 # Print a message when the condition is not met
+        #        exit 8
+        #    fi
+        #VALU
+        #echo "$VALU_LOG" | grep -P "^[0-9+-]+$" #while IFS= read -r line; do
+        #    if [ "$?" -eq 1 ]; then #echo "$line" | grep -Eq '^[0-9+-]+$'; then # Check if the line contains only numbers or +- characters
+        #        #: # If the condition is met, do nothing
+        #    #else
+        #        echo "ERROR: LOG contains invalid characters." >&2 # Print a message when the condition is not met
+        #        exit 9
+        #    fi
     fi
 }
 
@@ -119,18 +153,28 @@ CMD_fun () { #COMMAND function
 ########################################################################################################################
 
 # skontroluj, ci jesto veci dvesto | checks what commands were used
-while [ "$#" -gt 0 ]; do #checks for every input - case insensitive
+while [ "$#" -gt 0 ]; do #checks for every input
     case "$1" in
         -h | --help)
             print_hlp_fun
             exit 0
             ;; # help had been printed
         -a)
+            FLA_counter=$((FLA_counter+1))
+            if [ $FLA_counter -gt 1 ]; then
+                echo "ERROR: More then one DATETIME FILTER used, check --help." >&2
+                exit 1
+            fi
             DT_format_fun "$2"
             FLA="$2"
             shift 2
             ;; # datetime for AFTER had been taken to better place :)
         -b)
+            FLB_counter=$((FLB_counter+1))
+            if [ $FLB_counter -gt 1 ]; then
+                echo "ERROR: More then one DATETIME FILTER used, check --help." >&2
+                exit 1
+            fi
             DT_format_fun "$2"
             FLB="$2"
             shift 2
@@ -150,7 +194,7 @@ while [ "$#" -gt 0 ]; do #checks for every input - case insensitive
                 CMD="$1"
                 shift 1
             else #if not, error warns the user
-                echo "ERROR: You can use only one COMMAND at once, check '--help'."
+                echo "ERROR: You can use only one COMMAND at once, check '--help'." >&2
                 exit 6
             fi
             ;;
@@ -168,10 +212,10 @@ while [ "$#" -gt 0 ]; do #checks for every input - case insensitive
             else #if variable is already filled with some information
                 case "$1" in
                     *.gz)
-                        LOG="${LOG} \n$(gzip -d -c "$1")"
+                        LOG="${LOG}\n$(gzip -d -c "$1")"
                         ;;
                     *)
-                        LOG="${LOG} \n$(cat "$1")"
+                        LOG="${LOG}\n$(cat "$1")"
                         ;;
                 esac
             fi
@@ -184,7 +228,7 @@ while [ "$#" -gt 0 ]; do #checks for every input - case insensitive
                 NAME="$1"
                 shift 1
             else
-                echo "ERROR: You can use only one name at once. Maybe you just misspelled something, may want to check '--help'."
+                echo "ERROR: You can use only one name at once. Maybe you just misspelled something, may want to check '--help'." >&2
                 exit 7
             fi
             ;;
