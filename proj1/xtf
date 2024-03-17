@@ -43,7 +43,7 @@ DT_format_fun() { #checks for right DT format
         return 0
     else
         echo "ERROR: Invalid DATETIME format, call for '--help'" >&2
-        exit 1
+        exit 9
     fi
 }
 
@@ -59,50 +59,61 @@ initial_fun() { #initial awk sort - recursive usage
 }
 
 ERROR_fun () { #checks basic syntax and returns errors and even more breaf help
-    if [ -z "$1" ]; then #if none command was given
-        echo "ERROR: Please call for '--help'." >&2
-        exit 2
-    elif [ -z "$NAME" ]; then #if none NAME was given
-        echo "ERROR: No NAME used, please write your name on UŽIVATEL placeholder or call for '--help'." >&2
-        exit 3
-    elif [ -z "${LOG}" ]; then #if no LOG was found
-        echo "ERROR: No LOG used, please put your log on LOG placeholder or call for '--help'." >&2
-        exit 4
-    else
-        NAME_LOG=$(echo "$LOG" | awk -F ";" "{print $1}")
-        DATE_LOG=$(echo "$LOG" | awk -F ";" "{print $2}")
-        CURR_LOG=$(echo "$LOG" | awk -F ";" "{print $3}")
-        VALU_LOG=$(echo "$LOG" | awk -F ";" "{print $4}")
-
-        #NAME
-        #echo "$NAME_LOG" | grep "^[^[:space:];]+$"
-        #if [ $? -eq 1 ]; then
-        #    echo "ERROR: Wrong or damaged LOG used, please check your LOG." >&2
-        #    exit 5
-        #fi
-        #DATE
-        #if [ $? -eq 1 ]; then
-            #echo "$DATE_LOG" | while IFS= read -r line; do # Loop through each line of DATE_LOG
-            #    DT_format_fun "$line" # Call the function for each line
-            #done
-        #fi
-        #CURR
-        #echo "$CURR_LOG" | grep -P "^[A-Z]{3}$" #while IFS= read -r line; do
-        #    if [ "$?" -eq 1 ]; then #echo "$line" | grep -Eq '^[A-Z]{3}$'; then # Check if the line contains only 3 capitalized characters
-        #        #: # If the condition is met, do nothing
-            #else
-        #        echo "ERROR: LOG contains wrong format of currency." >&2 # Print a message when the condition is not met
-        #        exit 8
-        #    fi
-        #VALU
-        #echo "$VALU_LOG" | grep -P "^[0-9+-]+$" #while IFS= read -r line; do
-        #    if [ "$?" -eq 1 ]; then #echo "$line" | grep -Eq '^[0-9+-]+$'; then # Check if the line contains only numbers or +- characters
-        #        #: # If the condition is met, do nothing
-        #    #else
-        #        echo "ERROR: LOG contains invalid characters." >&2 # Print a message when the condition is not met
-        #        exit 9
-        #    fi
-    fi
+    case "$ERROR_N" in
+        1)
+            if [ -z "$1" ]; then #if none command was given
+                echo "ERROR: Please call for '--help'." >&2
+                exit 1
+            else
+                ERROR_N=$((ERROR_N+1))
+            fi
+            ;;
+        2)
+            if [ -z "$NAME" ]; then #if none NAME was given
+                echo "ERROR: No NAME used, please write your name on UŽIVATEL placeholder or call for '--help'." >&2
+                exit 2
+            else
+                ERROR_N=$((ERROR_N+1))
+            fi
+            ;;
+        3)
+            if [ -z "${LOG}" ]; then #if no LOG was found
+                echo "ERROR: No LOG used, please put your log on LOG placeholder or call for '--help'." >&2
+                exit 3
+            else
+                ERROR_N=$((ERROR_N+1))
+            fi
+            ;;
+        4)
+            echo "${LOG}" | while IFS= read -r line; do
+                LINE=$(echo "$line" | grep "^[!-~]+;[0-9]{4}\-[0-9]{2}\-[0-9]{2}\ [0-9]{2}:[0-9]{2}:[0-9]{2};
+                                                                                [A-Z]{3};[+-]*[0-9]+\.[0-9]{4}$")
+                if [ -z "${LINE}" ]; then
+                    echo "ERROR: Wrong or damaged LOG used, please check your LOG." >&2
+                    exit 4
+                else
+                    DATE_LOG=$(echo "$LINE" | awk -F ";" "{print $2}")
+                    DT_format_fun "$DATE_LOG" # Call the function for each line
+                fi
+            done
+            ;;
+        5)
+            echo "ERROR: More then one DATETIME FILTER used, check --help." >&2
+            exit 5
+            ;;
+        6)
+            echo "ERROR: More then one DATETIME FILTER used, check --help." >&2
+            exit 6
+            ;;
+        7)
+            echo "ERROR: You can use only one COMMAND at once, check '--help'." >&2
+            exit 7
+            ;;
+        8)
+            echo "ERROR: You can use only one name at once. Maybe you just misspelled something, may want to check '--help'." >&2
+            exit 8
+            ;;
+    esac
 }
 
 FLT_fun () { #separate function for FILTER based on recursive initial $ORT, reusable - based on commands
@@ -162,8 +173,8 @@ while [ "$#" -gt 0 ]; do #checks for every input
         -a)
             FLA_counter=$((FLA_counter+1))
             if [ $FLA_counter -gt 1 ]; then
-                echo "ERROR: More then one DATETIME FILTER used, check --help." >&2
-                exit 1
+                ERROR_N=5
+                ERROR_fun "$NAME", "${LOG}", "$ERROR_N"
             fi
             DT_format_fun "$2"
             FLA="$2"
@@ -172,8 +183,8 @@ while [ "$#" -gt 0 ]; do #checks for every input
         -b)
             FLB_counter=$((FLB_counter+1))
             if [ $FLB_counter -gt 1 ]; then
-                echo "ERROR: More then one DATETIME FILTER used, check --help." >&2
-                exit 1
+                ERROR_N=6
+                ERROR_fun "$NAME", "${LOG}", "$ERROR_N"
             fi
             DT_format_fun "$2"
             FLB="$2"
@@ -194,8 +205,8 @@ while [ "$#" -gt 0 ]; do #checks for every input
                 CMD="$1"
                 shift 1
             else #if not, error warns the user
-                echo "ERROR: You can use only one COMMAND at once, check '--help'." >&2
-                exit 6
+                ERROR_N=7
+                ERROR_fun "$NAME", "${LOG}", "$ERROR_N"
             fi
             ;;
         *.log | *.gz)
@@ -228,14 +239,15 @@ while [ "$#" -gt 0 ]; do #checks for every input
                 NAME="$1"
                 shift 1
             else
-                echo "ERROR: You can use only one name at once. Maybe you just misspelled something, may want to check '--help'." >&2
-                exit 7
+                ERROR_N=8
+                ERROR_fun "$NAME", "${LOG}", "$ERROR_N"
             fi
             ;;
     esac
 done
 
-ERROR_fun  "$NAME","${LOG}"
+ERROR_N=1
+ERROR_fun  "$NAME","${LOG}", "$ERROR_N"
 
 # ak jesto, cas prikazom dat priestor | if everything's OK - functions initialization begins
 initial_fun "${LOG}"
