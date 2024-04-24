@@ -1,0 +1,112 @@
+
+
+/*
+
+    k,
+    now we work:
+
+    1. implementuj main
+        was is:
+            0. errorinky
+            1. alokuj, co treba ~ TODO co treba?
+
+                        alokovat:
+                            trepala? wait, vstupy hodime do globalnych premennych, chill. cize semafor? and was is semafor, no - celkova konstrukcia premennych, ktorymi kontrolujem aktualny stav prebiehajucich akcii, Yes? yes. Right? right. tedaa, totok si naalokovat? na serovanu pamat. asi. joj, to asi skurvene :) jo a ked one ne, tak hento ano abo ne, zalezi na cine one. :))
+                            for semafor     todo
+
+            2. kolko pocet akcii? tolko: 1 + 2*Z + 3 + 4*L todo ?? vypis prepojit rovnou se premennu semaforu, bo sak same shit, ne YES GENIE <33
+            3. volaj skibus
+            4. nahodne pridel idZ ~ rand(idZ) TODO osetri neopakovanie ~ VYMAZAT POUZITE? IDK
+
+                zapis si do pola poli?? ofc - L, idZ (mozem, nemusim citat nahodne v skier)
+
+            5. forinkuj lyzarov todo NEBOLI FORKUJ XD THREAD I GUESS THO
+            6. wait till 0 ~ max
+            exit 0
+
+ semafor by krasne vyriesil lyziarov ~ lyziara a bus, teraz ale potrebujem kontrolovat:
+                    1. ciny lyziara K
+                    2. kolko ich kde stoji K
+                    3. aky plny je bus K
+                    4. kolko lyziarov zostava K
+                    5. kde je autobus K
+
+                    ~ mame celkovy pocet akcii. mame? xd
+                    ...
+                    ~ mame pocet lyziarov, tj semafor 1 kontrolujuci:
+                            * nic xd
+
+                    ~ mame pocet lyziarov a zastavok, tj pole semaforov 1 kontrolujuce:
+                            * kolko ostava celkovo
+                            * kolko kde stoji
+                            * z kade bus nabera
+                            *
+                            NAH potrebujem ceknut aky lyziar de je
+
+                    ~ plnost autobusu staci kontrolovat premennou ig
+                    ~ ciny lyziara synchronn s busom si prosi pole semaforov 2 podla poctu lyziarov
+                            * je na zastavke 1
+                            * nie je na zastavke 0 -> pis len pis dusa moja
+
+
+    2. implementuj errorinky
+        was is:
+            0. ak nieco missne svoj target
+            1. inicializuj rovno
+            thats it
+
+    3. implementuj skibus:
+        was is:
+            0. vypis do fajlu pociatocny stav akcie
+            1. while !(L==0):
+                2. while !(idZ==Z):
+                    3. ide na idZ
+                    4. nahodne vyber cas
+
+                        hmm, cakas len, bo bus maka, chill, 5. povie kolko (switched s 4.)
+
+                    5. wait ~ usleep
+                    6. vypis do fajlu aktualny stav akcie
+                    7. nastup ~ kontrol ALE kolko ludi v buse, kolko ludi ostava zobrat etc
+
+                        ejou!   nastup sa kona len ked bus ma miesto todo !! 1.podmienka
+                                a je kto nastupovat xd todo !! 2. podmienka
+                                ak plny - pokracuje po stopch, ale nic se nedeje
+                                ak uz sme pobrali sicke decka - pokracujeme po stopch a na konecnej ukoncujeme cely main ! v maine tho, taze nic xd
+
+                                spocita si Z ~ n
+                                nastup 1 Z -> Z=Z-1 == Z=Z-n todo !! 4. pocin
+                                todo signal lyziarovi KTOREMU ALE
+
+                    8. inkrementuj idZ
+                9. ak sa idZ == Z
+                10. vypis do fajlu aktualny stav akcie
+                11. vystup ~ todo signal povedz skier, ze skier arrived do ciela
+
+                    ak K plne, tak skier ma svoj boarding vypis TODO how?
+                    vyprazdni zasobnik K
+
+                12. vypis do fajlu aktualny stav akcietodo na signal od busu
+            13. if Z == 0
+            14. vypis do fajlu pociatocny stav akcie
+            exit 0
+
+    4. implementuj skier:
+        was is:
+            0. vypis do fajlu pociatocny stav akcie
+            4. nahodne pridel idZ ~ rand(idZ) TODO osetri neopakovanie ~ VYMAZAT POUZITE? IDK
+            1. nahodne vyber cas
+            2. vypis do fajlu pociatocny stav akcie (podla urceneho idZ) todo signal busu
+            3. wait
+            4. nastup ~ todo na signal od busu
+
+                todo co v skibus a co v skier?? done asi V BUSE
+                nastup sa deje len ak!  jesto miesto v busiku ~ Krealtime < K
+                                        a len ak busik je na miesto todo how - thats how: premenna stavu akcie skibus mi povie kde je, ak je na mojej idZ, nastupujem, ak nie, cakam. AK cakam pridlho, smolka(?)
+
+            5. vypis do fajlu pociatocny stav akcie
+            6. wait
+            7. vypis do fajlu pociatocny stav akcie
+            exit 0
+
+ */
