@@ -16,11 +16,11 @@ all: 		main.o
 main.o: 	$(M).c $(M).h
 			$(COMPILER) $(FLAGS) -c main.c -o $@
 
-run:		$(PR)
+run:		all $(PR)
 			./proj2 8 4 10 4 5
 
 clean:
-			-rm -f $(MAIN) $(MAIN).o
+			-rm -f $(M) $(M).o
 
 
 valgrind:	$(PR)

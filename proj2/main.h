@@ -17,6 +17,7 @@
 #include <sys/shm.h>
 #include <sys/wait.h>
 
+
 #define skierMAX    (L < 20000)
 #define stopsMAX    (Z <= 10)
 #define stopsMIN    (Z > 0)
@@ -38,5 +39,6 @@ int shmstart, shmstop, shmleave, shmfinal, shmA, shmidZ, shmBOARD, shmARR, shmwa
 int main(int argc, char *argv[]);
 void skier(int idL);
 void skibus();
+void THEEND(int in);
 
 #endif
