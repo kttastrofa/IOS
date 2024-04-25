@@ -6,7 +6,7 @@ SOURCES 		= Makefile \
 		  			$(M).h
 SHELL 			= /bin/bash
 COMPILER 		= gcc
-FLAGS 			= -std=gnu99 -Wall -Wextra -Werror -pedantic
+FLAGS 			= -std=gnu99 -Wall -Wextra -Werror -pedantic -pthread
 
 .PHONY: 	all run clean valgrind zip
 

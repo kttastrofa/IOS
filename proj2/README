@@ -110,3 +110,72 @@
             exit 0
 
  */
+ 
+ 
+ 
+
+void THEEND(int in){
+    switch(in){
+        case 11:
+            shmdt(waiting);
+        case 10:
+            shmctl(shmwaiting, IPC_RMID, NULL);
+
+        case 21:
+            shmdt(ARR);
+        case 20:
+            shmctl(shmARR, IPC_RMID, NULL);
+
+        case 31:
+            shmdt(BOARD);
+        case 30:
+            shmctl(shmBOARD, IPC_RMID, NULL);
+
+        case 41:
+            shmdt(idZ);
+        case 40:
+            shmctl(shmidZ, IPC_RMID, NULL);
+
+        case 51:
+            shmdt(A);
+        case 50:
+            shmctl(shmA, IPC_RMID, NULL);
+
+
+
+        case 62:
+            sem_destroy(final);
+        case 61:
+            shmdt(final);
+        case 60:
+            shmctl(shmfinal, IPC_RMID, NULL);
+
+
+
+        case 72:
+            sem_destroy(leave);
+        case 71:
+            shmdt(leave);
+        case 70:
+            shmctl(shmleave, IPC_RMID, NULL);
+
+
+        case 82:
+            sem_destroy(stop);
+        case 81:
+            shmdt(stop);
+        case 80:
+            shmctl(shmstop, IPC_RMID, NULL);
+
+
+        case 92:
+            sem_destroy(start);
+        case 91:
+            shmdt(start);
+        case 90:
+            shmctl(shmstart, IPC_RMID, NULL);
+
+        default:
+            fclose(file);
+    }
+}
