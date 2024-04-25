@@ -30,4 +30,4 @@ zip:
 			$(MAKE) clean
 			$(MAKE) all
 			$(MAKE) clean
-			zip -q $(MAIN).zip $(SOURCES)
+			zip -q $(PR).zip $(SOURCES)
