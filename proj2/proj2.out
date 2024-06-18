@@ -1,0 +1,44 @@
+1: BUS: started 
+2: L 2: started 
+3: L 1: started 
+5: L 4: started 
+4: L 3: started 
+6: L 5: started 
+7: L 6: started 
+8: L 2: arrived to 3 
+9: L 5: arrived to 1 
+10: L 1: arrived to 3 
+11: L 8: started 
+12: L 4: arrived to 1 
+13: L 7: started 
+14: L 6: arrived to 2 
+15: L 3: arrived to 4 
+16: L 7: arrived to 1 
+17: L 8: arrived to 1 
+18: BUS: arrived to 1 
+19: L 5: boarding 
+20: L 4: boarding 
+21: L 7: boarding 
+22: L 8: boarding 
+23: BUS: leaving 1 
+24: BUS: arrived to 2 
+25: L 6: boarding 
+26: BUS: leaving 2 
+27: BUS: arrived to 3 
+28: L 2: boarding 
+29: L 1: boarding 
+30: BUS: leaving 3 
+31: BUS: arrived to 4 
+32: L 3: boarding 
+33: BUS: leaving 4 
+34: BUS: arrived to final 
+35: L 5: going to ski 
+36: L 4: going to ski 
+37: L 7: going to ski 
+38: L 8: going to ski 
+39: L 6: going to ski 
+40: L 2: going to ski 
+41: L 1: going to ski 
+42: L 3: going to ski 
+43: BUS: leaving final 
+44: BUS: finish 
